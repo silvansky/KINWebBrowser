@@ -296,9 +296,13 @@ static void *KINContext = &KINContext;
     
     BOOL canGoBack = self.wkWebView.canGoBack || self.uiWebView.canGoBack;
     BOOL canGoForward = self.wkWebView.canGoForward || self.uiWebView.canGoForward;
+    BOOL canRefresh = self.wkWebView.URL || self.uiWebViewCurrentURL;
+    BOOL canShare = canRefresh;
     
     [self.backButton setEnabled:canGoBack];
     [self.forwardButton setEnabled:canGoForward];
+    [self.refreshButton setEnabled:canRefresh];
+    [self.actionButton setEnabled:canShare];
     
     if(!self.backButton) {
         [self setupToolbarItems];
@@ -413,6 +417,11 @@ static void *KINContext = &KINContext;
     else if(self.uiWebView) {
         URLForActivityItem = self.uiWebView.request.URL;
     }
+
+    if(!URLForActivityItem) {
+        return;
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
         TUSafariActivity *safariActivity = [[TUSafariActivity alloc] init];
         ARChromeActivity *chromeActivity = [[ARChromeActivity alloc] init];

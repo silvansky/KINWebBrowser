@@ -298,8 +298,8 @@ static void *KINContext = &KINContext;
     
     BOOL canGoBack = self.wkWebView.canGoBack || self.uiWebView.canGoBack;
     BOOL canGoForward = self.wkWebView.canGoForward || self.uiWebView.canGoForward;
-    BOOL canRefresh = self.wkWebViewCurrentURL || self.uiWebViewCurrentURL;
-    BOOL canShare = canRefresh;
+    BOOL canRefresh = self.wkWebViewCurrentURL || self.uiWebViewCurrentURL;  // Enable refreshing even if the WKWebView has no URL
+    BOOL canShare = self.wkWebView.URL || self.uiWebViewCurrentURL;  // Only enable sharing if there's a visible page (i.e., the WKWebView has a URL)
     
     [self.backButton setEnabled:canGoBack];
     [self.forwardButton setEnabled:canGoForward];

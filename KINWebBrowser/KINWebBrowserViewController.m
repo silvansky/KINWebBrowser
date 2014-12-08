@@ -123,6 +123,7 @@ static void *KINContext = &KINContext;
         [self.wkWebView setFrame:self.view.bounds];
         [self.wkWebView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
         [self.wkWebView setNavigationDelegate:self];
+        [self.wkWebView setUIDelegate:self];
         [self.wkWebView setMultipleTouchEnabled:YES];
         [self.wkWebView setAutoresizesSubviews:YES];
         [self.wkWebView.scrollView setAlwaysBounceVertical:YES];
@@ -290,6 +291,19 @@ static void *KINContext = &KINContext;
             [self.delegate webBrowser:self didFailToLoadURL:self.wkWebView.URL error:error];
         }
     }
+}
+
+#pragma mark - WKUIDelegate
+
+-(WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    // Called on target=_blank URLs. We just redirect them to the one and only browser.
+
+    if(!navigationAction.targetFrame.isMainFrame) {
+        [webView loadRequest:navigationAction.request];
+    }
+    
+    return nil;
 }
 
 #pragma mark - Toolbar State

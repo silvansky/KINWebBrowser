@@ -45,6 +45,7 @@ static void *KINContext = &KINContext;
 @property (nonatomic, strong) UIPopoverController *actionPopoverController;
 @property (nonatomic, assign) BOOL uiWebViewIsLoading;
 @property (nonatomic, strong) NSURL *uiWebViewCurrentURL;
+@property (nonatomic, strong) NSURL *wkWebViewCurrentURL;
 
 @end
 
@@ -254,6 +255,7 @@ static void *KINContext = &KINContext;
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
     if(webView == self.wkWebView) {
+        self.wkWebViewCurrentURL = webView.URL;
         [self updateToolbarState];
         if([self.delegate respondsToSelector:@selector(webBrowser:didStartLoadingURL:)]) {
             [self.delegate webBrowser:self didStartLoadingURL:self.wkWebView.URL];
@@ -296,7 +298,7 @@ static void *KINContext = &KINContext;
     
     BOOL canGoBack = self.wkWebView.canGoBack || self.uiWebView.canGoBack;
     BOOL canGoForward = self.wkWebView.canGoForward || self.uiWebView.canGoForward;
-    BOOL canRefresh = self.wkWebView.URL || self.uiWebViewCurrentURL;
+    BOOL canRefresh = self.wkWebViewCurrentURL || self.uiWebViewCurrentURL;
     BOOL canShare = canRefresh;
     
     [self.backButton setEnabled:canGoBack];
@@ -392,7 +394,12 @@ static void *KINContext = &KINContext;
 - (void)refreshButtonPressed:(id)sender {
     if(self.wkWebView) {
         [self.wkWebView stopLoading];
-        [self.wkWebView reload];
+        if(!self.wkWebView.URL && self.wkWebViewCurrentURL) {
+            [self loadURL:self.wkWebViewCurrentURL];
+        }
+        else {
+            [self.wkWebView reload];
+        }
     }
     else if(self.uiWebView) {
         [self.uiWebView stopLoading];

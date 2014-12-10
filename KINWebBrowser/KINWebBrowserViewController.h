@@ -121,5 +121,7 @@
 // Can be called any time after initialization
 - (void)loadURLString:(NSString *)URLString;
 
+- (void)refreshWebView;
+
 @end
 

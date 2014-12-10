@@ -205,6 +205,23 @@ static void *KINContext = &KINContext;
     [self updateToolbarState];
 }
 
+- (void)refreshWebView
+{
+    if(self.wkWebView) {
+        [self.wkWebView stopLoading];
+        if(!self.wkWebView.URL && self.wkWebViewCurrentURL) {
+            [self loadURL:self.wkWebViewCurrentURL];
+        }
+        else {
+            [self.wkWebView reload];
+        }
+    }
+    else if(self.uiWebView) {
+        [self.uiWebView stopLoading];
+        [self.uiWebView reload];
+    }
+}
+
 
 #pragma mark - UIWebViewDelegate
 
@@ -329,18 +346,7 @@ static void *KINContext = &KINContext;
         barButtonItems = @[self.backButton, self.fixedSeparator, self.forwardButton, self.fixedSeparator, self.stopButton, self.flexibleSeparator];
         
         if(self.showsURLInNavigationBar) {
-            NSString *URLString;
-            if(self.wkWebView) {
-                URLString = [self.wkWebView.URL absoluteString];
-            }
-            else if(self.uiWebView) {
-                URLString = [self.uiWebViewCurrentURL absoluteString];
-            }
-            
-            URLString = [URLString stringByReplacingOccurrencesOfString:@"http://" withString:@""];
-            URLString = [URLString stringByReplacingOccurrencesOfString:@"https://" withString:@""];
-            URLString = [URLString substringToIndex:[URLString length]-1];
-            self.navigationItem.title = URLString;
+            [self showURLInNavigationBar];
         }
     }
     else {
@@ -352,6 +358,11 @@ static void *KINContext = &KINContext;
             }
             else if(self.uiWebView) {
                 self.navigationItem.title = [self.uiWebView stringByEvaluatingJavaScriptFromString:@"document.title"];
+            }
+
+            // Fall back on the URL if showsURLInNavigationBar and the page has no title.
+            if(self.showsURLInNavigationBar && self.navigationItem.title.length == 0) {
+                [self showURLInNavigationBar];
             }
         }
     }
@@ -374,6 +385,25 @@ static void *KINContext = &KINContext;
     self.fixedSeparator = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     self.fixedSeparator.width = 50.0f;
     self.flexibleSeparator = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+}
+
+- (void)showURLInNavigationBar
+{
+    NSString *URLString;
+    if(self.wkWebView) {
+        URLString = [self.wkWebView.URL absoluteString];
+        if(!URLString) {
+            URLString = [self.wkWebViewCurrentURL absoluteString];
+        }
+    }
+    else if(self.uiWebView) {
+        URLString = [self.uiWebViewCurrentURL absoluteString];
+    }
+
+    URLString = [URLString stringByReplacingOccurrencesOfString:@"http://" withString:@""];
+    URLString = [URLString stringByReplacingOccurrencesOfString:@"https://" withString:@""];
+    URLString = [URLString substringToIndex:[URLString length]-1];
+    self.navigationItem.title = URLString;
 }
 
 #pragma mark - Done Button Action
@@ -406,19 +436,7 @@ static void *KINContext = &KINContext;
 }
 
 - (void)refreshButtonPressed:(id)sender {
-    if(self.wkWebView) {
-        [self.wkWebView stopLoading];
-        if(!self.wkWebView.URL && self.wkWebViewCurrentURL) {
-            [self loadURL:self.wkWebViewCurrentURL];
-        }
-        else {
-            [self.wkWebView reload];
-        }
-    }
-    else if(self.uiWebView) {
-        [self.uiWebView stopLoading];
-        [self.uiWebView reload];
-    }
+    [self refreshWebView];
 }
 
 - (void)stopButtonPressed:(id)sender {

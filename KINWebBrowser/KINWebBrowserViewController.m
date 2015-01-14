@@ -400,9 +400,12 @@ static void *KINContext = &KINContext;
         URLString = [self.uiWebViewCurrentURL absoluteString];
     }
 
-    URLString = [URLString stringByReplacingOccurrencesOfString:@"http://" withString:@""];
-    URLString = [URLString stringByReplacingOccurrencesOfString:@"https://" withString:@""];
-    URLString = [URLString substringToIndex:[URLString length]-1];
+    if(URLString.length > 0) {
+        URLString = [URLString stringByReplacingOccurrencesOfString:@"http://" withString:@""];
+        URLString = [URLString stringByReplacingOccurrencesOfString:@"https://" withString:@""];
+        URLString = [URLString substringToIndex:[URLString length]-1];
+    }
+
     self.navigationItem.title = URLString;
 }
 

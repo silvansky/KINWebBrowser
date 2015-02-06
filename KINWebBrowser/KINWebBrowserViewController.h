@@ -48,12 +48,22 @@
 @end
 
 
+typedef NS_ENUM(NSInteger, KINWebBrowserNavigationType) {
+    KINWebBrowserNavigationTypeLinkActivated,
+    KINWebBrowserNavigationTypeFormSubmitted,
+    KINWebBrowserNavigationTypeBackForward,
+    KINWebBrowserNavigationTypeReload,
+    KINWebBrowserNavigationTypeFormResubmitted,
+    KINWebBrowserNavigationTypeOther = -1,
+};
+
 
 @protocol KINWebBrowserDelegate <NSObject>
 @optional
 - (void)webBrowser:(KINWebBrowserViewController *)webBrowser didStartLoadingURL:(NSURL *)URL;
 - (void)webBrowser:(KINWebBrowserViewController *)webBrowser didFinishLoadingURL:(NSURL *)URL;
 - (void)webBrowser:(KINWebBrowserViewController *)webBrowser didFailToLoadURL:(NSURL *)URL error:(NSError *)error;
+- (BOOL)webBrowser:(KINWebBrowserViewController *)webBrowser shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(KINWebBrowserNavigationType)navigationType;
 @end
 
 

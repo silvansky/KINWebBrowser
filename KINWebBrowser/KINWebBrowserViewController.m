@@ -227,6 +227,18 @@ static void *KINContext = &KINContext;
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     if(webView == self.uiWebView) {
+        if([self.delegate respondsToSelector:@selector(webBrowser:shouldStartLoadWithRequest:navigationType:)]) {
+            KINWebBrowserNavigationType translatedType = (KINWebBrowserNavigationType)navigationType;
+
+            // These are all identical to their WKNavigationType (and hence KINWebBrowserNavigationType) counterparts, with
+            // the exception of Other:
+            if(navigationType == UIWebViewNavigationTypeOther) translatedType = KINWebBrowserNavigationTypeOther;
+
+            BOOL decision = [self.delegate webBrowser:self shouldStartLoadWithRequest:request navigationType:translatedType];
+            if(!decision)
+                return NO;
+        }
+
         self.uiWebViewCurrentURL = request.URL;
         self.uiWebViewIsLoading = YES;
         [self updateToolbarState];
@@ -270,6 +282,22 @@ static void *KINContext = &KINContext;
 }
 
 #pragma mark - WKNavigationDelegate
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if(webView == self.wkWebView) {
+        KINWebBrowserNavigationType navigationType = (KINWebBrowserNavigationType)navigationAction.navigationType;
+
+        if([self.delegate respondsToSelector:@selector(webBrowser:shouldStartLoadWithRequest:navigationType:)]) {
+            BOOL decision = [self.delegate webBrowser:self shouldStartLoadWithRequest:navigationAction.request navigationType:navigationType];
+            decisionHandler(decision ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
+        }
+        else
+            decisionHandler(WKNavigationActionPolicyAllow);
+    }
+    else
+        decisionHandler(WKNavigationActionPolicyAllow);
+}
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
     if(webView == self.wkWebView) {

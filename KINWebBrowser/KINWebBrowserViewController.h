@@ -35,6 +35,8 @@
 
 @class KINWebBrowserViewController;
 
+typedef NSDictionary *(^KINWebBrowserHeadersFilterBlock)(NSURL *url, NSDictionary *headers);
+
 /*
  
  UINavigationController+KINWebBrowserWrapper category enables access to casted KINWebBroswerViewController when set as rootViewController of UINavigationController
@@ -113,7 +115,13 @@ typedef NS_ENUM(NSInteger, KINWebBrowserNavigationType) {
 + (UINavigationController *)navigationControllerWithWebBrowser;
 + (UINavigationController *)navigationControllerWithWebBrowserWithConfiguration:(WKWebViewConfiguration *)configuration NS_AVAILABLE_IOS(8_0);
 
-
+/**
+ * Set filter to pick headers for HTTP request.
+ *
+ * This block will be invoked for each request, returned
+ * NSDictionary will be used as headers in corresponding HTTP request.
+ */
+@property (nonatomic, copy) KINWebBrowserHeadersFilterBlock headersFilter;
 
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, strong) UIColor *barTintColor;
@@ -132,6 +140,10 @@ typedef NS_ENUM(NSInteger, KINWebBrowserNavigationType) {
 - (void)loadURLString:(NSString *)URLString;
 
 - (void)refreshWebView;
+
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+
+- (NSString *)valueForHTTPHeaderField:(NSString *)field;
 
 @end
 

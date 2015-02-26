@@ -92,7 +92,7 @@ static void *KINContext = &KINContext;
     self = [super init];
     if(self) {
         
-        if([WKWebView class]) {
+        if(NO) {
             if(configuration) {
                 self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration];
             }
